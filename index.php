@@ -1,8 +1,8 @@
-<?php require 'db.php'; 
-$sql = 'SELECT * from people';
-$statement = $connection->prepare($sql);
-$statement->excute();
-$people = $statement->fetchAll(PDO::FETCH_OBJ);
+<?php require_once 'new_db.php'; 
+//$sql_conn = 'SELECT * from people';
+$id = 0;
+$sql_conn = Config::getInstance()->query("SELECT * FROM people");
+
 ?>
 <?php require 'header.php';?>
     <div class="container">
@@ -18,7 +18,7 @@ $people = $statement->fetchAll(PDO::FETCH_OBJ);
     					<th>EMAIL</th>
     					<th>ACTION</th>
     				</tr>
-    				<?php foreach($people as $person ):?>
+    				<?php foreach($sql_conn as $person ):?>
     				<tr>
     					<td><?= $person->id; ?></td>
     					<td><?= $person->name; ?></td>
