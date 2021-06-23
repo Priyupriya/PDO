@@ -1,64 +1,30 @@
 <?php
-$GLOBALS['finalconfig'] = initConfiguration();
-loadEncryptedCredToEnvironement();
-
-// $finalconfig = initConfiguration();
-
-//Local DB
-$GLOBALS["LOCAL_DB"] = new MeekroDB(getCredentials('EXCELANALYZER_DB_HOST'), getCredentials('EXCELANALYZER_DB_USER'), getCredentials('EXCELANALYZER_DB_PASSWORD'), getCredentials($GLOBALS['finalconfig']['EXCELANALYZER_DB_NAME']), getCredentials('EXCELANALYZER_DB_PORT'), 'utf8');
-$GLOBALS["LOCAL_DB"]->error_handler = false; // since we're catching errors, don't need error handler
-$GLOBALS["LOCAL_DB"]->throw_exception_on_error = true; //enable exceptions for the DB
-
-//Increase packet limit and fix GROUPBY error
-//$GLOBALS["LOCAL_DB"]->query('SET GLOBAL max_allowed_packet=3073741824');
-$GLOBALS["LOCAL_DB"]->query('SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode,"ONLY_FULL_GROUP_BY",""))');
-$GLOBALS["LOCAL_DB"]->query('SET SQL_SAFE_UPDATES = 0');
-$GLOBALS["LOCAL_DB"]->query('SET GLOBAL sort_buffer_size=1000000');
-
-//Local USERSPICE DB
-$GLOBALS["LOCAL_USERSPICE_DB"] = new MeekroDB(getCredentials('EXCELANALYZER_DB_HOST'), getCredentials('EXCELANALYZER_DB_USER'), getCredentials('EXCELANALYZER_DB_PASSWORD'), getCredentials($GLOBALS['finalconfig']['USERSPICE_DB_NAME']), getCredentials('EXCELANALYZER_DB_PORT'), 'utf8');
-$GLOBALS["LOCAL_USERSPICE_DB"]->error_handler = false; // since we're catching errors, don't need error handler
-$GLOBALS["LOCAL_USERSPICE_DB"]->throw_exception_on_error = true; //enable exceptions for the DB
+use Defuse\Crypto\Crypto;
+use Defuse\Crypto\Key;
 
 
+//Be able to switch between test and live database from environment file
+$GLOBALS["CONFIG"] = [
+    'DEV' => [
+        'PDO_DB_NAME' => 'def50200afde21896537b6b7bbc83eea6b28bf8af7e37ad69cf0637901d55f05e739e5642edebfb12216bd7e1f964ecf3a417604812477ad661942a4c6aed8dc98e01be77c841113fb6a4570473e2fddb9290d30944bcaca7396a1fa',
 
-//-----------------HELPER FUNCTIONS------------------
+        'PDO_ENV_FILE_LOCATION' => 'def50200a164881684abd2c535a65840f702ed44267d613bca0f2501a99eb873e5d6caae0aa12c718f85d9aa9b155f582e5bf6efaf1726c788dce458b23452817755475b809cb5f33441a9814b6aa5cd909d260f368aa7',
+	]];
+	
+	//HTTP OR HTTPS
+define('SERVER_PROTOCOL', isSecure() ? 'https://' : 'http://');
 
-function initConfiguration()
+//EDI AGADIR MANAGEMENT APP
+define('PDO_FILE_LOCATION', $_SERVER['DOCUMENT_ROOT'] . DIRECTORY_SEPARATOR);
+define('PDO_LOCATION_PUBLIC_SITE_LOCATION', SERVER_PROTOCOL . $_SERVER['SERVER_NAME'] . '/');
+//echo getenv('ENVIRONMENT');
+function isSecure()
 {
-    $defaultconfig = $GLOBALS["CONFIG"]['DEV'];
-    $environment = getenv('ENVIRONMENT') ? getenv('ENVIRONMENT') : 'DEV';
-    // echo 'ENV = ' . $environment . '-----';
-    $environment_config = $GLOBALS["CONFIG"][$environment];
-    // var_dump(array_merge($defaultconfig, $environment_config));
-    return array_merge($defaultconfig, $environment_config);
+    return
+        (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+        || $_SERVER['SERVER_PORT'] == 443;
 }
-function encryptString($string)
-{
-    return Crypto::encrypt($string, Key::loadFromAsciiSafeString(getenv('ENC_KEY')));
-}
+//var_dump($GLOBALS);
 
-function decrypt($code)
-{
-    return Crypto::decrypt($code, Key::loadFromAsciiSafeString(getenv('ENC_KEY')));
-}
-
-function getCredentials($index)
-{
-    if (!isset($_ENV[$index])) {
-        return false;
-    }
-    if ($index === 'ENVIRONMENT') {
-        return getenv('ENVIRONMENT');
-        // return $_ENV[$index];
-    }
-    return Crypto::decrypt($_ENV[$index], Key::loadFromAsciiSafeString(getenv('ENC_KEY')));
-}
-function loadEncryptedCredToEnvironement()
-{
-    // echo '.ENV is in = ' . getCredentials($GLOBALS['finalconfig']['ENV_FILE_LOCATION']);
-    $dotenv = Dotenv\Dotenv::createMutable(EDIAGADIR_LOCATION . Crypto::decrypt($GLOBALS['finalconfig']['ENV_FILE_LOCATION'], Key::loadFromAsciiSafeString(getenv('ENC_KEY'))));
-    $dotenv->load();
-}
-
-?>
+	?>
+	
