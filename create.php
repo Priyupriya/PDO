@@ -1,12 +1,15 @@
 <?php
-require 'db.php';
+require_once 'db.php'; 
+//$sql_conn = 'SELECT * from people';
+$id = 0;
+
 $message = '';
 if(isset ($_POST['name']) && isset($_POST['email'])){
 //echo 'submitted';
 $name = $_POST['name'];
 $email = $_POST['email'];
 $sql = 'INSERT into people(name,email) values(:name, :email)';
-$statement = $connection->prepare($sql);
+$statement = $conn->prepare($sql);
 if($statement->execute([':name' => $name, ':email' => $email])){
 $message = 'Date inserted successfully';	
 }
@@ -24,7 +27,7 @@ $message = 'Date inserted successfully';
 				<?= $message; ?>
 			</div>
 		<?php endif; ?>
-		<form method="post">
+		<form method="post" >
 			<div class="form-group">
 				<label for="name">Name</label>
 				<input type="text" name="name" id="name" class="form-control">
@@ -34,7 +37,7 @@ $message = 'Date inserted successfully';
 				<input type="email" name="email" id="email" class="form-control">
 			</div>
 			<div class="form-group">
-				<button type="submit" class="btn-btn-info">Submit</button>
+				<button type="submit" class="btn btn-info" style="margin : 10px 0px;">Submit</button>
 			</div>
 		</form>
 	</div>

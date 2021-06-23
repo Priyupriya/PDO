@@ -2,9 +2,9 @@
 require 'db.php';
 $id = $_GET['id'];
 $sql = 'SELECT * from people where id=:id';
-$statement = $connection->prepare($sql);
+$statement = $conn->prepare($sql);
 $statement->execute([':id' => $id]);
-$person = $statement->fetch(PDO::FETCH_OBJ);
+$people = $statement->fetchAll(PDO::FETCH_ASSOC);
 
 $message = '';
 if(isset ($_POST['name']) && isset($_POST['email'])){
@@ -12,8 +12,8 @@ if(isset ($_POST['name']) && isset($_POST['email'])){
 $name = $_POST['name'];
 $email = $_POST['email'];
 $sql = 'UPDATE people SET  name=:name, email=:email WHERE id=:id';
-$statement = $connection->prepare($sql);
-if($statement->execute([':name' => $name, ':email' => $email, 'id:'=> $id])){
+$statement = $conn->prepare($sql);
+if($statement->execute(['name' => $name, 'email' => $email, 'id'=> $id])){
 header('location:index.php');	
 }
 }
@@ -31,18 +31,20 @@ header('location:index.php');
 			</div>
 		<?php endif; ?>
 		<form method="post">
+		<?php foreach($people as $person ):?>
 			<div class="form-group">
 				<label for="name">Name</label>
-				<input type="text" value="<?= $person->name; ?>" name="name" id="name" class="form-control">
+				<input type="text" value="<?= $person['name']; ?>" name="name" id="name" class="form-control">
 			</div>
 			<div class="form-group">
 				<label for="email">Email</label>
-				<input type="email" value="<?= $person->email; ?>" name="email" id="email" class="form-control">
+				<input type="email" value="<?= $person['email']; ?>" name="email" id="email" class="form-control">
 			</div>
 			<div class="form-group">
 				<button type="submit" class="btn-btn-info">Submit</button>
 			</div>
 		</form>
+		<?php endforeach; ?>
 	</div>
 	</div>
 </div>

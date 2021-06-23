@@ -1,56 +1,45 @@
 <?php
-$GLOBALS['config'] = array(
+	$globaldb = $GLOBALS['config'] = array(
     'mysql' => array(
         'host' => getenv('PDO_DB_HOST'),
         'username' => 'root',
         'password' => getenv('PDO_DB_PASSWORD'),
         'db' => getenv('PDO_DB_NAME'),
-    )
-	);
+		            
+    ));
+	$keys = array_keys($globaldb);
+ $arrlength=count($keys);
+ $singleArray = [];
+for($i = 0; $i < $arrlength; $i++) {
+	 $glob= $globaldb[$keys[$i]];
 
-
-class DB_connection {
-	private $pdo;
-	 private function __construct($config_options = []){
-		
-			// $config_options = [
-			// $dbname => Config::get('mysql/db'),
-			// $username => Config::get('mysql/username'),
-			// $password => Config::get('mysql/password'),
-			// $host =>Config::get('mysql/host'),
-			// ];
-			// $config = array_replace($config_options, $config);
-			// $dsn = "mysql:host=$host;dbname=$dbname;charset=utf8mb4";
-		// try {
-			// $pdo = new PDO($dsn, $username, $password);
-			// echo "DB connection successful";
-
-		// } catch (PDOException $e){
-			// echo "Error!: " . $e->getMessage() . "<br/>";
-		// }	
-		
-	 }
-		
-
+	 foreach($glob as $key => $value) {
+  //    echo "$key  :   $value  <br>";
+	//		echo "The localhost {$key} is $value" . '<br>';
+			$singleArray[] = $value;
+			
 }
-$db = new DB_connection();
+}
+			$host = $singleArray[0];
+			$username = $singleArray[1];
+			$password = $singleArray[2];
+			$db = $singleArray[3];
+			
+ // var_dump($host);
+ // var_dump($username);
+ // var_dump($password);
+ // var_dump($sb);
+	// class DB
 
-echo "connection successful";
 
-//print_r($sql);	
-	//echo "Error!: " . $e->getMessage() . "<br/>";
-
-
-	// $dsn = 'mysql:host=localhost;dbname=test_pdo';
-// $username = 'root';
-// $password = '';
-	  //$dsn = 'mysql:host='. $host .';dbname='. $dbname;
-	  //$dsn = "mysql:dbname={$this->db};host:{$this->host}";
-//var_dump($dsn);
-// try{
-// $connection = new PDO($dsn,$username,$password');
-// echo 'connection successful';
-// }catch(PDOException $e){
- // echo "Error!: " . $e->getMessage() . "<br/>";
-// }
+try {
+    $conn = new PDO("mysql:host=$host;dbname=$db", $username, $password);
+    // set the PDO error mode to exception
+    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+  //  echo "Connected successfully";
+    }
+catch(PDOException $e)
+    {
+    echo "Connection failed: " . $e->getMessage();
+    }
 ?>
